@@ -1,9 +1,6 @@
 import Web3 from 'web3';
-import { Transaction } from 'web3-core/types';
-import { Account } from 'web3-eth-accounts';
-import { HttpProvider } from 'web3-providers';
 import { logger } from './log';
-import { BN } from 'web3-utils';
+import { Transaction, Account } from 'web3/types';
 
 class NodeManager {
 
@@ -16,10 +13,10 @@ class NodeManager {
     constructor(connectionString : string, privateKey? : string) {
 
         // Node
-        this.node = new Web3(new HttpProvider(connectionString));        
+        this.node = new Web3(new Web3.providers.HttpProvider(connectionString));        
 
         // Account
-        this.account = { privateKey : "", address : "" };
+        this.account = { privateKey : "", address : "", publicKey : "" };
         this.setupAccount(privateKey)
         .catch(e => "Error during setupAccount for privateKey " + privateKey + "Error: " + e);
 
@@ -37,7 +34,7 @@ class NodeManager {
         });
     }
 
-    protected getEthereumBalance(address : string) : Promise<string | BN> {
+    protected getEthereumBalance(address : string) : Promise<string> {
         return this.node.eth.getBalance(address)
         .then( balance => {
             let ether = this.node.utils.fromWei(balance, 'ether');
@@ -81,7 +78,6 @@ class NodeManager {
         .catch(e => console.log("Error getting ETH balance for account " + account.address + " Error: " +e));
         logger.info("Ethereum Account initialized. Address: " + account.address + " Balance: " + ether + "ETH");
         this.account = account;
-        this.node.eth.accounts.defaultAccount = this.account.address;
     }
 
     private getPrivateKeyAccount(privateKey : string) : Account {
@@ -94,7 +90,8 @@ class NodeManager {
         logger.info("Address of default account is "+accounts[0]);
         let account : Account = {
             address : accounts[0],
-            privateKey : ""
+            privateKey : "",
+            publicKey : ""
         };
         return account;
     }

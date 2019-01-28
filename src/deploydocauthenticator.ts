@@ -1,6 +1,5 @@
 import NodeManager from './nodemanager';
-import { DeployTransactionResponse } from 'web3-eth-contract/types';
-import { TransactionReceipt, Transaction } from 'web3-core/types';
+import { TransactionReceipt } from 'web3/types';
 const docAuthContractJson = require('../blockchain/build/contracts/Docauth');
 
 export default async function deployDatabaseSync(bcNodeUrl : string, privateKey : string) : Promise<TransactionReceipt> {
@@ -10,11 +9,11 @@ export default async function deployDatabaseSync(bcNodeUrl : string, privateKey 
     await nodemanager.accountIsSetup();
     console.log("Node connected. Account is setup.");
     let databaseSyncContract = new nodemanager.node.eth.Contract(docAuthContractJson.abi);
-    let deployTx : DeployTransactionResponse = databaseSyncContract.deploy({
+    let deployTx : any = databaseSyncContract.deploy({
         data: docAuthContractJson.bytecode,
         arguments: []
     });
-    let tx : Transaction = {
+    let tx : any = {
         from: nodemanager.getAccountAddress(),
         data: deployTx.encodeABI(),
         gas : await deployTx.estimateGas(),
@@ -22,8 +21,7 @@ export default async function deployDatabaseSync(bcNodeUrl : string, privateKey 
     };
     privateKey = "0x" + privateKey; // web3 expects privatekey to start with 0x.
     console.log(nodemanager.node.eth.accounts);
-    let signedTx : any = await nodemanager.node.eth.accounts.signTransaction(tx, privateKey)
-    .catch(e => console.log("Error during transaction signing: " + e));
+    let signedTx : any = await nodemanager.node.eth.accounts.signTransaction(tx, privateKey);
     return nodemanager.node.eth.sendSignedTransaction(signedTx.rawTransaction)
     .on("transactionHash", (txHash : string) => {})
     .on('confirmation', (confirmationNumber : number, receipt : TransactionReceipt) => {})

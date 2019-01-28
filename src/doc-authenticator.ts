@@ -1,10 +1,8 @@
+import { createHash, Hash } from 'crypto';
+import { Contract, TransactionReceipt } from 'web3/types';
+import { logger } from './log';
 import NodeManager from './nodemanager';
 import Proof from './proof';
-import { logger } from './log';
-import { Contract } from 'web3-eth-contract/types';
-import { TransactionReceipt, Transaction } from 'web3-core/types';
-import { Hash, createHash } from 'crypto';
-import { SignedTransaction } from 'web3-eth-accounts/types';
 const docAuthContractJson = require('../blockchain/build/contracts/Docauth');
 
 class DocAuthenticator {
@@ -40,25 +38,21 @@ class DocAuthenticator {
     public async addProof(file : File, uid : string) : Promise<TransactionReceipt> {
         logger.info("addProof() called for id " + uid);
         let hash = await DocAuthenticator.getHashOfFile(file);        
-        let tx = this.docAuthContract.methods.addProof(uid, hash);
-        let txObject : Transaction = {
+        let tx : any = this.docAuthContract.methods.addProof(uid, hash);
+        let txObject = {
             gas: await tx.estimateGas(),
             data: tx.encodeABI(),
             from: this.bc.getAccountAddress(),
             to: this.docAuthContract.options.address
         };
-        let signedTx : SignedTransaction = await this.bc.node.eth.accounts.signTransaction(txObject, this.bc.account.privateKey);
-        if (typeof signedTx.rawTransaction === "string") {        
-            return this.bc.node.eth.sendSignedTransaction(signedTx.rawTransaction)
-            .on("transactionHash", (txHash : string) => {})
-            .on('confirmation', (confirmationNumber : number, receipt : TransactionReceipt) => {})
-            .on('receipt', (txReceipt : TransactionReceipt) => { 
-                logger.info("Added proof entry for doc: " + uid + " Transaction: " + txReceipt.transactionHash);
-                return txReceipt;
-            });
-        } else {
-            return Promise.reject("Error during Tx signing. signedTx: " + signedTx);
-        }
+        let signedTx : any = await this.bc.node.eth.accounts.signTransaction(txObject, this.bc.account.privateKey);
+        return this.bc.node.eth.sendSignedTransaction(signedTx.rawTransaction)
+        .on("transactionHash", (txHash : string) => {})
+        .on('confirmation', (confirmationNumber : number, receipt : TransactionReceipt) => {})
+        .on('receipt', (txReceipt : TransactionReceipt) => { 
+            logger.info("Added proof entry for doc: " + uid + " Transaction: " + txReceipt.transactionHash);
+            return txReceipt;
+        });
     }
 
     private static async getHashOfFile(file : File) : Promise<string> {
