@@ -12,3 +12,6 @@ dist/
 
 # Misc
 .DS_Store
+
+# Test Coverage
+.nyc_output/

@@ -1,8 +1,8 @@
 import { createHash, Hash } from 'crypto';
-import { Contract, TransactionReceipt } from 'web3/types';
+import { Contract, TransactionReceipt, BatchRequest } from 'web3/types';
+import DocProof from './docproof';
 import { logger } from './log';
 import NodeManager from './nodemanager';
-import Proof from './proof';
 const docAuthContractJson = require('../blockchain/build/contracts/Docauth');
 
 class DocAuthenticator {
@@ -24,20 +24,29 @@ class DocAuthenticator {
 
     }
 
-    public async readLatestProofEntry(uid : string) : Promise<Proof> {
-        let latestProof = await this.docAuthContract.methods.getLatestProofEntry(uid).call();
-        logger.info("readLatestProofEntry() for uid " + uid + " returned " + latestProof.datahash);
-        let proof : Proof = {
-            datahash: latestProof.datahash,
-            sender: latestProof.sender,
-            timestamp: latestProof.timestamp
-        };
-        return proof;
+    public async isReady() : Promise<void> {
+        await this.bc.isConnected();
+        await this.bc.accountIsSetup();
+        return;
     }
 
-    public async addProof(file : File, uid : string) : Promise<TransactionReceipt> {
+    public async readProof(buffer : Buffer) : Promise<DocProof> {
+        let hash = DocAuthenticator.getHashOfFile(buffer);  
+        let proof = await this.docAuthContract.methods.getProof(hash).call();
+        logger.info("readProof( " + hash + " ) returned " + JSON.stringify(proof));
+        let dProof : DocProof = {
+            datahash: hash,
+            sender: proof.sender,
+            timestamp: proof.timestamp,
+            uid: proof.id
+        };
+        return dProof;
+    }
+
+    public async addProof(buffer : Buffer, uid : string) : Promise<TransactionReceipt> {
         logger.info("addProof() called for id " + uid);
-        let hash = await DocAuthenticator.getHashOfFile(file);        
+        let hash = DocAuthenticator.getHashOfFile(buffer);   
+        logger.info("addProof(" + uid + " , " + hash + " )"); 
         let tx : any = this.docAuthContract.methods.addProof(uid, hash);
         let txObject = {
             gas: await tx.estimateGas(),
@@ -45,29 +54,11 @@ class DocAuthenticator {
             from: this.bc.getAccountAddress(),
             to: this.docAuthContract.options.address
         };
-        let signedTx : any = await this.bc.node.eth.accounts.signTransaction(txObject, this.bc.account.privateKey);
-        return this.bc.node.eth.sendSignedTransaction(signedTx.rawTransaction)
-        .on("transactionHash", (txHash : string) => {})
-        .on('confirmation', (confirmationNumber : number, receipt : TransactionReceipt) => {})
-        .on('receipt', (txReceipt : TransactionReceipt) => { 
-            logger.info("Added proof entry for doc: " + uid + " Transaction: " + txReceipt.transactionHash);
-            return txReceipt;
-        });
+        return this.bc.signAndSendTx(txObject);
     }
 
-    private static async getHashOfFile(file : File) : Promise<string> {
-        return new Promise<string>( (resolve, revoke) => {
-            let reader = new FileReader();
-            reader.readAsBinaryString(file);
-            reader.addEventListener('load', function() {
-                if (typeof this.result === "string") {
-                    let hash = DocAuthenticator.sha256(this.result);
-                    resolve(hash);
-                } else {
-                    revoke("Error: Could not read hash of file.")
-                }
-            });
-        });
+    private static getHashOfFile(buffer : Buffer) : string {
+        return DocAuthenticator.sha256(buffer.toString('binary'));
     }
 
     private static sha256(message: string): string {

@@ -1,6 +1,6 @@
 import Web3 from 'web3';
 import { logger } from './log';
-import { Transaction, Account } from 'web3/types';
+import { Transaction, Account, TransactionReceipt, Tx } from 'web3/types';
 
 class NodeManager {
 
@@ -40,6 +40,21 @@ class NodeManager {
             let ether = this.node.utils.fromWei(balance, 'ether');
             logger.debug("getEthereumBalance("+address+") returned "+ether);
             return ether;
+        });
+    }
+
+    public async signAndSendTx(tx : Tx) : Promise<TransactionReceipt> {
+        let signedTx : any = await this.node.eth.accounts.signTransaction(tx, this.account.privateKey);
+        return this.node.eth.sendSignedTransaction(signedTx.rawTransaction)
+        .on("transactionHash", (txHash : string) => {})
+        .on('confirmation', (confirmationNumber : number, receipt : TransactionReceipt) => {})
+        .on('receipt', (txReceipt : TransactionReceipt) => { 
+            console.log("signAndSendTx success. Tx Address: " + txReceipt.transactionHash);
+            return txReceipt;
+        })
+        .catch(e => {
+            console.log("error during contract deployment:"+e);
+            return Promise.reject();
         });
     }
 

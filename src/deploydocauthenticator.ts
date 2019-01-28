@@ -19,18 +19,7 @@ export default async function deployDatabaseSync(bcNodeUrl : string, privateKey 
         gas : await deployTx.estimateGas(),
         value : 0
     };
-    privateKey = "0x" + privateKey; // web3 expects privatekey to start with 0x.
-    console.log(nodemanager.node.eth.accounts);
-    let signedTx : any = await nodemanager.node.eth.accounts.signTransaction(tx, privateKey);
-    return nodemanager.node.eth.sendSignedTransaction(signedTx.rawTransaction)
-    .on("transactionHash", (txHash : string) => {})
-    .on('confirmation', (confirmationNumber : number, receipt : TransactionReceipt) => {})
-    .on('receipt', (txReceipt : TransactionReceipt) => { 
-        console.log("Contract deployed. Tx Address: " + txReceipt.transactionHash);
-        return txReceipt;
-    })
-    .catch(e => {
-        console.log("error during contract deployment:"+e);
-        return Promise.reject();
-    });
+    let txReceipt = await nodemanager.signAndSendTx(tx);
+    console.log("Successfully deployed Doc Auth contract. Address: " + txReceipt.contractAddress);
+    return txReceipt;
 }
