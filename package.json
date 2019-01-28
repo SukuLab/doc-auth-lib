@@ -1,0 +1,21 @@
+{
+  "name": "doc-authenticator",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "ts-node": "^8.0.2",
+    "typescript": "^3.2.4",
+    "@types/bn.js": "^4.11.4"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.3.1",
+    "web3": "1.0.0-beta.34",
+    "winston": "^2.3.8"
+  }
+}
