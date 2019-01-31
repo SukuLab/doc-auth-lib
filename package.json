@@ -2,7 +2,7 @@
   "name": "@suku/doc-auth-lib",
   "version": "1.0.2",
   "description": "",
-  "main": "index.js",
+  "main": "./dist/doc-authenticator.js",
   "scripts": {
     "compile": "tsc --sourcemap && node --nolazy --inspect-brk=9229 ./dist/example.js",
     "dev": "nodemon -e ts --exec \"npm run compile\"",
