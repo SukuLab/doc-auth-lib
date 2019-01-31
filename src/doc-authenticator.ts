@@ -1,8 +1,9 @@
 import { createHash, Hash } from 'crypto';
-import { Contract, TransactionReceipt, BatchRequest } from 'web3/types';
 import DocProof from './docproof';
 import { logger } from './log';
 import NodeManager from './nodemanager';
+import { Contract } from 'web3-eth-contract/types';
+import { TransactionReceipt } from 'web3-core/types';
 const docAuthContractJson = require('../blockchain/build/contracts/Docauth');
 
 class DocAuthenticator {

@@ -1,5 +1,5 @@
 import NodeManager from './nodemanager';
-import { TransactionReceipt } from 'web3/types';
+import { TransactionReceipt } from 'web3-core/types';
 const docAuthContractJson = require('../blockchain/build/contracts/Docauth');
 
 export default async function deployDatabaseSync(bcNodeUrl : string, privateKey : string) : Promise<TransactionReceipt> {

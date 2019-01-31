@@ -1,5 +1,5 @@
 {
-  "name": "doc-auth-lib",
+  "name": "@suku/doc-auth-lib",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -42,7 +42,7 @@
     "crypto": "^1.0.1",
     "fs": "0.0.1-security",
     "path": "^0.12.7",
-    "web3": "1.0.0-beta.34",
+    "web3": "1.0.0-beta.41",
     "winston": "^2.3.8"
   }
 }

@@ -1,6 +1,7 @@
 import Web3 from 'web3';
 import { logger } from './log';
-import { Transaction, Account, TransactionReceipt, Tx } from 'web3/types';
+import { Transaction, TransactionReceipt } from 'web3-core/types';
+import { Account } from 'web3-eth-accounts/types';
 
 class NodeManager {
 
@@ -16,7 +17,7 @@ class NodeManager {
         this.node = new Web3(new Web3.providers.HttpProvider(connectionString));        
 
         // Account
-        this.account = { privateKey : "", address : "", publicKey : "" };
+        this.account = { privateKey : "", address : "" };
         this.setupAccount(privateKey)
         .catch(e => "Error during setupAccount for privateKey " + privateKey + "Error: " + e);
 
@@ -43,7 +44,7 @@ class NodeManager {
         });
     }
 
-    public async signAndSendTx(tx : Tx) : Promise<TransactionReceipt> {
+    public async signAndSendTx(tx : Transaction) : Promise<TransactionReceipt> {
         let signedTx : any = await this.node.eth.accounts.signTransaction(tx, this.account.privateKey);
         return this.node.eth.sendSignedTransaction(signedTx.rawTransaction)
         .on("transactionHash", (txHash : string) => {})
@@ -105,8 +106,7 @@ class NodeManager {
         logger.info("Address of default account is "+accounts[0]);
         let account : Account = {
             address : accounts[0],
-            privateKey : "",
-            publicKey : ""
+            privateKey : ""
         };
         return account;
     }
