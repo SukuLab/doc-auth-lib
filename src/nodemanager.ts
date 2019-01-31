@@ -97,7 +97,10 @@ class NodeManager {
     }
 
     private getPrivateKeyAccount(privateKey : string) : Account {
-        let account = this.node.eth.accounts.privateKeyToAccount("0x" + privateKey);
+        if (privateKey.substring(0,2) != "0x") {
+            privateKey = "0x" + privateKey;
+        }
+        let account = this.node.eth.accounts.privateKeyToAccount(privateKey);
         return account;
     }
 
