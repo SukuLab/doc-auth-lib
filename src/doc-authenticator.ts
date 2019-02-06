@@ -45,17 +45,23 @@ class DocAuthenticator {
     }
 
     public async addProof(buffer : Buffer, uid : string) : Promise<TransactionReceipt> {
-        logger.info("addProof() called for id " + uid);
-        let hash = DocAuthenticator.getHashOfFile(buffer);   
-        logger.info("addProof(" + uid + " , " + hash + " )"); 
-        let tx : any = this.docAuthContract.methods.addProof(uid, hash);
-        let txObject = {
-            gas: await tx.estimateGas(),
-            data: tx.encodeABI(),
-            from: this.bc.getAccountAddress(),
-            to: this.docAuthContract.options.address
-        };
-        return this.bc.signAndSendTx(txObject);
+        try {
+            logger.info("addProof() called for id " + uid);
+            let hash = DocAuthenticator.getHashOfFile(buffer);   
+            logger.info("addProof(" + uid + " , " + hash + " )"); 
+            let tx : any = this.docAuthContract.methods.addProof(uid, hash);
+            let txObject = {
+                gas: await tx.estimateGas(),
+                data: tx.encodeABI(),
+                from: this.bc.getAccountAddress(),
+                to: this.docAuthContract.options.address
+            };
+            logger.info("addProof() function sending tx to signAndSendTx() - from: " + txObject.from + " gas: " + txObject.gas + " to: " + txObject.to);
+            return this.bc.signAndSendTx(txObject);
+        } catch (e) {
+            logger.error("Error during addProof() " + e);
+            return Promise.reject(e);
+        }
     }
 
     private static getHashOfFile(buffer : Buffer) : string {

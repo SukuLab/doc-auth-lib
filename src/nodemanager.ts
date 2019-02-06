@@ -45,16 +45,19 @@ class NodeManager {
     }
 
     public async signAndSendTx(tx : Transaction) : Promise<TransactionReceipt> {
+        logger.info("signAndSendTx() called: tx.from: " + tx.from);
         let signedTx : any = await this.node.eth.accounts.signTransaction(tx, this.account.privateKey);
         return this.node.eth.sendSignedTransaction(signedTx.rawTransaction)
-        .on("transactionHash", (txHash : string) => {})
+        .on("transactionHash", (txHash : string) => { 
+            logger.info("signAndSendTx() TxHash: " + txHash)
+         })
         .on('confirmation', (confirmationNumber : number, receipt : TransactionReceipt) => {})
         .on('receipt', (txReceipt : TransactionReceipt) => { 
-            console.log("signAndSendTx success. Tx Address: " + txReceipt.transactionHash);
+            logger.info("signAndSendTx success. Tx Address: " + txReceipt.transactionHash);
             return txReceipt;
         })
         .catch(e => {
-            console.log("error during contract deployment:"+e);
+            logger.error("error during contract deployment:"+e);
             return Promise.reject();
         });
     }
