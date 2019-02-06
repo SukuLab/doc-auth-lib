@@ -2,11 +2,10 @@ import NodeManager from './nodemanager';
 import { TransactionReceipt } from 'web3-core/types';
 const docAuthContractJson = require('../blockchain/build/contracts/Docauth');
 
-export default async function deployDatabaseSync(bcNodeUrl : string, privateKey : string) : Promise<TransactionReceipt> {
+export default async function deployDocAuthenticator(bcNodeUrl : string, privateKey : string) : Promise<TransactionReceipt> {
     console.log("Deploying doc authenticator to NodeUrl " + bcNodeUrl);
     let nodemanager = new NodeManager(bcNodeUrl, privateKey);
-    await nodemanager.isConnected();
-    await nodemanager.accountIsSetup();
+    await nodemanager.ready;
     console.log("Node connected. Account is setup.");
     let databaseSyncContract = new nodemanager.node.eth.Contract(docAuthContractJson.abi);
     let deployTx : any = databaseSyncContract.deploy({

@@ -20,15 +20,14 @@ class DocAuthenticator {
         this.bc = new NodeManager(nodeUrl, privateKey);      
         
         // Smart Contracts
+        this.bc.checkIfContractExists(contractAddress);
         this.docAuthContract = new this.bc.node.eth.Contract(docAuthContractJson.abi);
         this.docAuthContract.options.address = contractAddress;
 
     }
 
-    public async isReady() : Promise<void> {
-        await this.bc.isConnected();
-        await this.bc.accountIsSetup();
-        return;
+    public isReady() {
+        return this.bc.ready;
     }
 
     public async readProof(buffer : Buffer) : Promise<DocProof> {
@@ -46,12 +45,15 @@ class DocAuthenticator {
 
     public async addProof(buffer : Buffer, uid : string) : Promise<TransactionReceipt> {
         try {
+            await this.bc.ready;
             logger.info("addProof() called for id " + uid);
             let hash = DocAuthenticator.getHashOfFile(buffer);   
             logger.info("addProof(" + uid + " , " + hash + " )"); 
-            let tx : any = this.docAuthContract.methods.addProof(uid, hash);
+            let tx = this.docAuthContract.methods.addProof(uid, hash);
+            let gas = await tx.estimateGas();
+            logger.info("Estimated gas: " + gas);
             let txObject = {
-                gas: await tx.estimateGas(),
+                gas: gas,
                 data: tx.encodeABI(),
                 from: this.bc.getAccountAddress(),
                 to: this.docAuthContract.options.address

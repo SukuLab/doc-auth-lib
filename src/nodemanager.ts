@@ -11,6 +11,9 @@ class NodeManager {
     // Account
     public account : Account;    
 
+    // ready variable to show if node is ready
+    public ready : Promise<any>;
+
     constructor(connectionString : string, privateKey? : string) {
 
         // Node
@@ -18,7 +21,7 @@ class NodeManager {
 
         // Account
         this.account = { privateKey : "", address : "" };
-        this.setupAccount(privateKey)
+        this.ready = this.setupAccount(privateKey)
         .catch(e => "Error during setupAccount for privateKey " + privateKey + "Error: " + e);
 
     }
@@ -44,6 +47,17 @@ class NodeManager {
         });
     }
 
+    public async checkIfContractExists(contractAddress : string) : Promise<boolean> {
+        let code = await this.node.eth.getCode(contractAddress);
+        if (code.length > 10) {
+            return true;
+        } else {
+            let msg = "Error: Contract does not exist: " + contractAddress + " on network ID: " + await this.getNetworkId();
+            logger.error(msg);
+            return false;
+        }
+    }
+
     public async signAndSendTx(tx : Transaction) : Promise<TransactionReceipt> {
         logger.info("signAndSendTx() called: tx.from: " + tx.from);
         let signedTx : any = await this.node.eth.accounts.signTransaction(tx, this.account.privateKey);
@@ -57,7 +71,7 @@ class NodeManager {
             return txReceipt;
         })
         .catch(e => {
-            logger.error("error during contract deployment:"+e);
+            logger.error("error during signAndSendTx(): "+e);
             return Promise.reject();
         });
     }
@@ -70,10 +84,6 @@ class NodeManager {
         return this.node.eth.net.isListening();
     }
 
-    public async accountIsSetup() : Promise<boolean> {
-        return (await this.account.privateKey != undefined);
-    }
-
     protected getNonce() : Promise<number> {
         logger.debug("getNonce() called");
         return this.node.eth.getTransactionCount(this.account.address)
@@ -83,8 +93,13 @@ class NodeManager {
         }); 
     }
 
+    private async getNetworkId() : Promise<number> {
+        await this.ready;
+        return this.node.eth.net.getId()
+    }
+
     private async setupAccount(privateKey? : string) {
-        logger.debug("setupAccount function called");
+        logger.info("setupAccount function called on network ID: " + await this.getNetworkId());
         let account : Account;
         if (privateKey == undefined) {
             logger.info("No privateKey specified in config. Trying to access default account...")
