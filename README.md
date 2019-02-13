@@ -12,7 +12,9 @@ let docauth = new DocAuthenicator(
         privateKey // private key that is used for signing
     );
 
-let txReceipt = await docauth.addProof(fileBuffer, uid);
+let proofReceipt = await docauth.addProof(fileBuffer, uid);
+let docHash = proofReceipt.docHash;
+let txReceipt = proofReceipt.txReceipt;
 ```
 
 ### Reading a Proof

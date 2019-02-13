@@ -43,7 +43,12 @@ describe('Database', () => {
         it('should add a proof', async () => {
             let filePath = path.join(__dirname, 'docauth.spec.ts');
             let buffer : Buffer = fs.readFileSync(filePath); // Do not specify encoding
-            let txReceipt = await docAuth.addProof(buffer, "1");
+            let receipt = await docAuth.addProof(buffer, "1");
+
+            let docHash = receipt.docHash;
+            expect(docHash).to.have.lengthOf(64);
+
+            let txReceipt = receipt.txReceipt;
             expect(txReceipt.transactionHash).length.to.be.greaterThan(20);
         });
 

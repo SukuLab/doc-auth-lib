@@ -1,5 +1,6 @@
 import { createHash, Hash } from 'crypto';
 import DocProof from './docproof';
+import ProofReceipt from './proofreceipt'
 import { logger } from './log';
 import NodeManager from './nodemanager';
 import { Contract } from 'web3-eth-contract/types';
@@ -43,7 +44,7 @@ class DocAuthenticator {
         return dProof;
     }
 
-    public async addProof(buffer : Buffer, uid : string) : Promise<TransactionReceipt> {
+    public async addProof(buffer: Buffer, uid: string): Promise<ProofReceipt> {
         try {
             await this.bc.ready;
             logger.info("addProof() called for id " + uid);
@@ -59,7 +60,11 @@ class DocAuthenticator {
                 to: this.docAuthContract.options.address
             };
             logger.info("addProof() function sending tx to signAndSendTx() - from: " + txObject.from + " gas: " + txObject.gas + " to: " + txObject.to);
-            return this.bc.signAndSendTx(txObject);
+            let receipt : ProofReceipt = {
+                docHash: hash,
+                txReceipt: await this.bc.signAndSendTx(txObject),
+            }
+            return receipt;
         } catch (e) {
             logger.error("Error during addProof() " + e);
             return Promise.reject(e);
