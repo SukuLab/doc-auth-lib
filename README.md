@@ -7,10 +7,14 @@ The document authenticator ships as an npm package. It can be used as a library 
 To install the document authenticator in your NodeJS project, one can use the official [SUKU NPM Repo](https://www.npmjs.com/settings/suku/packages) (access required) or a git based install.
 
 If you have access to the official NPM repo, you the following command to install the library.
-`npm i --save @suku/doc-auth-lib`
+```
+npm i --save @suku/doc-auth-lib
+```
 
 If you don't have access to the official NPM repo, you can still install the document authenticator from github. You will need to create a personal access token for the git command line. Please see [this guide](https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/). Use the following command:
-`npm i --save https://{your-github-token}@github.com/SukuLab/doc-auth-lib`
+```
+npm i --save https://{your-github-token}@github.com/SukuLab/doc-auth-lib
+```
 
 ## Prep: Contract Deployment
 The Doc Authenticator requires a contract that needs to be deployed to the blockchain. If the contract has already been deployed to your network, please skip this section.
