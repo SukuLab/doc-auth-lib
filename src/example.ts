@@ -23,7 +23,8 @@ deployDocAuth(
     // 2) Add a new file
     let filePath = path.join(__dirname, 'example.ts');
     let buffer : Buffer = fs.readFileSync(filePath); // Do not specify encoding
-    await docauth.addProof(buffer, "1");
+    let proofReceipt = await docauth.addProof(buffer, "1");
+    logger.info("addProof returned: Hash: " + proofReceipt.docHash + " txAddress: " + proofReceipt.txReceipt);
 
     // 3) Read a DocProof
     docauth.readProof(buffer);

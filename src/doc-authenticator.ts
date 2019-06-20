@@ -4,7 +4,6 @@ import ProofReceipt from './proofreceipt'
 import { logger } from './log';
 import NodeManager from './nodemanager';
 import { Contract } from 'web3-eth-contract/types';
-import { TransactionReceipt } from 'web3-core/types';
 const docAuthContractJson = require('../blockchain/build/contracts/Docauth');
 
 class DocAuthenticator {

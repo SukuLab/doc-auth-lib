@@ -58,21 +58,23 @@ class NodeManager {
         }
     }
 
-    public async signAndSendTx(tx : Transaction) : Promise<TransactionReceipt> {
-        logger.info("signAndSendTx() called: tx.from: " + tx.from);
-        let signedTx : any = await this.node.eth.accounts.signTransaction(tx, this.account.privateKey);
-        return this.node.eth.sendSignedTransaction(signedTx.rawTransaction)
-        .on("transactionHash", (txHash : string) => { 
-            logger.info("signAndSendTx() TxHash: " + txHash)
-         })
-        .on('confirmation', (confirmationNumber : number, receipt : TransactionReceipt) => {})
-        .on('receipt', (txReceipt : TransactionReceipt) => { 
-            logger.info("signAndSendTx success. Tx Address: " + txReceipt.transactionHash);
-            return txReceipt;
-        })
-        .catch(e => {
-            logger.error("error during signAndSendTx(): "+e);
-            return Promise.reject();
+    public async signAndSendTx(tx : Transaction) : Promise<string> {
+        return new Promise<string>( async (resolve, reject) =>{
+            logger.info("signAndSendTx() called: tx.from: " + tx.from);
+            let signedTx : any = await this.node.eth.accounts.signTransaction(tx, this.account.privateKey);
+            return this.node.eth.sendSignedTransaction(signedTx.rawTransaction)
+            .on("transactionHash", (txHash : string) => { 
+                logger.info("signAndSendTx() TxHash: " + txHash);
+                resolve(txHash);
+            })
+            .on('confirmation', (confirmationNumber : number, receipt : TransactionReceipt) => {})
+            .on('receipt', (txReceipt : TransactionReceipt) => { 
+                logger.info("signAndSendTx success. Tx Address: " + txReceipt.transactionHash);
+            })
+            .catch(e => {
+                logger.error("error during signAndSendTx(): "+e);
+                return Promise.reject();
+            });
         });
     }
 

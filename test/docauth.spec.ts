@@ -49,7 +49,7 @@ describe('Database', () => {
             expect(docHash).to.have.lengthOf(64);
 
             let txReceipt = receipt.txReceipt;
-            expect(txReceipt.transactionHash).length.to.be.greaterThan(20);
+            expect(txReceipt).length.to.be.greaterThan(20);
         });
 
         it('should retrieve a proof', async () => {

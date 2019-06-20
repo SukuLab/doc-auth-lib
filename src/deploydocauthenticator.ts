@@ -1,5 +1,6 @@
 import NodeManager from './nodemanager';
 import { TransactionReceipt } from 'web3-core/types';
+import { logger } from './log';
 const docAuthContractJson = require('../blockchain/build/contracts/Docauth');
 
 export default async function deployDocAuthenticator(bcNodeUrl : string, privateKey : string) : Promise<TransactionReceipt> {
@@ -18,7 +19,17 @@ export default async function deployDocAuthenticator(bcNodeUrl : string, private
         gas : await deployTx.estimateGas(),
         value : 0
     };
-    let txReceipt = await nodemanager.signAndSendTx(tx);
-    console.log("Successfully deployed Doc Auth contract. Address: " + txReceipt.contractAddress);
-    return txReceipt;
+    let signedTx : any = await nodemanager.node.eth.accounts.signTransaction(tx, nodemanager.account.privateKey);
+    return nodemanager.node.eth.sendSignedTransaction(signedTx.rawTransaction)
+    .on("transactionHash", (txHash : string) => { 
+        logger.info("signAndSendTx() TxHash: " + txHash);
+     })
+    .on('confirmation', (confirmationNumber : number, receipt : TransactionReceipt) => {})
+    .on('receipt', (txReceipt : TransactionReceipt) => { 
+        logger.info("signAndSendTx success. Tx Address: " + txReceipt.transactionHash);
+    })
+    .catch(e => {
+        logger.error("error during signAndSendTx(): "+e);
+        return Promise.reject();
+    });
 }
