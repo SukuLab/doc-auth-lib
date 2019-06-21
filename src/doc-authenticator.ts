@@ -5,6 +5,9 @@ import { logger } from './log';
 import NodeManager from './nodemanager';
 import { Contract } from 'web3-eth-contract/types';
 const docAuthContractJson = require('../blockchain/build/contracts/Docauth');
+import { Emitter } from '@suku/typed-rx-emitter';
+import TransactionStatus from './transactionstatus';
+import { map, take } from 'rxjs/operators';
 
 class DocAuthenticator {
 
@@ -59,9 +62,15 @@ class DocAuthenticator {
                 to: this.docAuthContract.options.address
             };
             logger.info("addProof() function sending tx to signAndSendTx() - from: " + txObject.from + " gas: " + txObject.gas + " to: " + txObject.to);
+            
+            let emitter : Emitter<TransactionStatus> = new Emitter<TransactionStatus>();            
             let receipt : ProofReceipt = {
                 docHash: hash,
-                txReceipt: await this.bc.signAndSendTx(txObject),
+                predictedTxHash: await this.bc.signAndSendTx(txObject, emitter),
+                confirmedTxReceipt: emitter.on("txReceipt")
+                    .pipe( // Create Observable pipe
+                    take(1) // Complete Observable when first event is fired
+                    ).toPromise() // Convert Observable to Promise
             }
             return receipt;
         } catch (e) {

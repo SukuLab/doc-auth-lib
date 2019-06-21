@@ -24,7 +24,8 @@ deployDocAuth(
     let filePath = path.join(__dirname, 'example.ts');
     let buffer : Buffer = fs.readFileSync(filePath); // Do not specify encoding
     let proofReceipt = await docauth.addProof(buffer, "1");
-    logger.info("addProof returned: Hash: " + proofReceipt.docHash + " txAddress: " + proofReceipt.txReceipt);
+    logger.info("addProof returned: Hash: " + proofReceipt.docHash + " predicted txAddress: " + proofReceipt.predictedTxHash);
+    logger.info("Confirmed txHash: " + (await proofReceipt.confirmedTxReceipt).transactionHash);
 
     // 3) Read a DocProof
     docauth.readProof(buffer);

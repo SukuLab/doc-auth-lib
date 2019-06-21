@@ -2,6 +2,9 @@ import Web3 from 'web3';
 import { logger } from './log';
 import { Transaction, TransactionReceipt } from 'web3-core/types';
 import { Account } from 'web3-eth-accounts/types';
+import { Emitter } from '@suku/typed-rx-emitter';
+import TransactionStatus from './transactionstatus';
+
 
 class NodeManager {
 
@@ -58,18 +61,20 @@ class NodeManager {
         }
     }
 
-    public async signAndSendTx(tx : Transaction) : Promise<string> {
-        return new Promise<string>( async (resolve, reject) =>{
+    public async signAndSendTx(tx : Transaction, emitter : Emitter<TransactionStatus>) : Promise<string> {
+            return new Promise<string>( async (resolve, reject) =>{
             logger.info("signAndSendTx() called: tx.from: " + tx.from);
             let signedTx : any = await this.node.eth.accounts.signTransaction(tx, this.account.privateKey);
             return this.node.eth.sendSignedTransaction(signedTx.rawTransaction)
             .on("transactionHash", (txHash : string) => { 
-                logger.info("signAndSendTx() TxHash: " + txHash);
+                logger.info("signAndSendTx() predicted TxHash: " + txHash);
+                emitter.emit("predictedTxHash", txHash);
                 resolve(txHash);
             })
             .on('confirmation', (confirmationNumber : number, receipt : TransactionReceipt) => {})
             .on('receipt', (txReceipt : TransactionReceipt) => { 
-                logger.info("signAndSendTx success. Tx Address: " + txReceipt.transactionHash);
+                logger.info("signAndSendTx success. Confirmed Tx Hash: " + txReceipt.transactionHash);
+                emitter.emit("txReceipt", txReceipt);
             })
             .catch(e => {
                 logger.error("error during signAndSendTx(): "+e);

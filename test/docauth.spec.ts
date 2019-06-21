@@ -48,8 +48,14 @@ describe('Database', () => {
             let docHash = receipt.docHash;
             expect(docHash).to.have.lengthOf(64);
 
-            let txReceipt = receipt.txReceipt;
-            expect(txReceipt).length.to.be.greaterThan(20);
+            let predictedTxHash = receipt.predictedTxHash;
+            expect(predictedTxHash).length.to.be.greaterThan(20);
+
+            let confirmedTxHashP = receipt.confirmedTxReceipt;
+            expect(confirmedTxHashP).to.be.a("Promise");
+
+            let confirmedTxHash = await confirmedTxHashP;
+            expect(confirmedTxHash.transactionHash).length.to.be.greaterThan(20);
         });
 
         it('should retrieve a proof', async () => {
