@@ -1,44 +1,52 @@
 import { expect }  from 'chai';
 import 'mocha';
 import DocAuthenticator from '../src/doc-authenticator';
-import ganache from 'ganache-cli'; 
-import deployDocAuth from '../src/deploydocauthenticator';
 import fs from 'fs';
 import path from 'path';
+import nock from 'nock';
+import deployDocAuth from '../src/deploydocauthenticator';
 
-let privateKey = "adbdb6619b54150986c974a4b4e8408a8833c5bbbe259c7f086a798ca1b88fbd";
-let host = "http://127.0.0.1";
-let port = 5678
-let server = ganache.server({
-    accounts : [
-        { 
-            secretKey : "0x" + privateKey,
-            balance : 0xFFFFFFFFFFFFFFFFF
-        }
-    ]
-});
-server.listen(port, (err : any, blockchain : any) => { });
-let bcNodeUrl = host + ":" + port;
+let nodeManagerMockUrl = 'http://suku.world';
+let contractAddress = '0x823309726b1cd06c9b0b283ca89cd578102661ca1d1f99b0ed5198d1528901dc';
 
 describe('Database', () => {
     let docAuth : DocAuthenticator;    
 
     before( async () => {
-        let contractDeployTxReceiptP = deployDocAuth(bcNodeUrl, privateKey);
-        let contractDeployTxReceipt = await contractDeployTxReceiptP;
-        docAuth = new DocAuthenticator(bcNodeUrl, contractDeployTxReceipt.contractAddress, privateKey);
+        docAuth = new DocAuthenticator(nodeManagerMockUrl, contractAddress);
+    });
+
+    beforeEach( () => {
+        // Mock NodeManager REST API
+        nock(nodeManagerMockUrl)
+            .post('/sendTx')
+            .reply(200, "0x800320c5a1984ccca878559e0adbc10ebcaae68eb09166f480035ba8fd8b5a4e");
+        nock(nodeManagerMockUrl)
+            .get('/waitForTx/0x800320c5a1984ccca878559e0adbc10ebcaae68eb09166f480035ba8fd8b5a4e')
+            .reply(200, {
+                transactionHash : "0x800320c5a1984ccca878559e0adbc10ebcaae68eb09166f480035ba8fd8b5a4e",
+                contractAddress : "0x800320c5a1984ccca878559e0adbc10ebcaae68eb09166f480035ba8fd8b5a4e"
+            });   
+        nock(nodeManagerMockUrl)
+            .post('/callFunction')
+            .reply(200, 
+                // mock the encoded smart contract response
+                "0x000000000000000000000000000000000000000000000000000000000000006000000000000000000000000008a01dd7c61a704f17c4d9d602e1807d21d5eee1000000000000000000000000000000000000000000000000000000005d40929200000000000000000000000000000000000000000000000000000000000000013100000000000000000000000000000000000000000000000000000000000000"
+                );   
     })
 
     it('should return an object', async () => {
-        await docAuth.isReady();
         expect(docAuth).to.be.an('Object');
     });
 
-    describe('DocAuth', () => {
+    describe('deployDocAuth', () => {
+        it('should deploy the contract', async () => {
+            let receipt = await deployDocAuth(nodeManagerMockUrl);
+            expect(receipt.contractAddress).length.to.be.greaterThan(20);
+        })
+    })
 
-        before( async () => {
-            await docAuth.isReady();
-        });
+    describe('DocAuth', () => {
 
         it('should add a proof', async () => {
             let filePath = path.join(__dirname, 'docauth.spec.ts');

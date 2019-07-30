@@ -1,76 +1,77 @@
 import { createHash, Hash } from 'crypto';
 import DocProof from './docproof';
 import ProofReceipt from './proofreceipt'
-import { logger } from './log';
-import NodeManager from './nodemanager';
-import { Contract } from 'web3-eth-contract/types';
+import Web3 from 'web3';
 const docAuthContractJson = require('../blockchain/build/contracts/Docauth');
-import { Emitter } from '@suku/typed-rx-emitter';
-import TransactionStatus from './transactionstatus';
-import { map, take } from 'rxjs/operators';
+import NodeManager from '@suku/bc-node-manager-client-lib';
+import { Contract } from 'web3-eth-contract/types';
+import { Transaction } from 'web3-core/types';
+
+let logger = require('@suku/suku-logging')(require('../package.json'));
+
+const web3 = new Web3(new Web3.providers.HttpProvider(''));
 
 class DocAuthenticator {
 
     // Node
-    private bc : NodeManager;
+    private nodeManager : NodeManager;
 
     // Smart Contracts
     private docAuthContract : Contract;
 
-    constructor(nodeUrl : string, contractAddress : string, privateKey : string) {
+
+    constructor(nodeManagerUrl : string, contractAddress : string) {
 
         // Call constructor of NodeManager with connectionString
-        this.bc = new NodeManager(nodeUrl, privateKey);      
+        this.nodeManager = new NodeManager(nodeManagerUrl);      
         
         // Smart Contracts
-        this.bc.checkIfContractExists(contractAddress);
-        this.docAuthContract = new this.bc.node.eth.Contract(docAuthContractJson.abi);
+        this.nodeManager.checkIfContractExists(contractAddress);
+        this.docAuthContract = new web3.eth.Contract(docAuthContractJson.abi);
         this.docAuthContract.options.address = contractAddress;
 
     }
 
-    public isReady() {
-        return this.bc.ready;
-    }
-
     public async readProof(buffer : Buffer) : Promise<DocProof> {
         let hash = DocAuthenticator.getHashOfFile(buffer);  
-        let proof = await this.docAuthContract.methods.getProof(hash).call();
-        logger.info("readProof( " + hash + " ) returned " + JSON.stringify(proof));
+
+        // Encode call and send it to NodeManager
+        let encodedAbi : string = await this.docAuthContract.methods.getProof(hash).encodeABI();
+        let tx : Transaction = {
+            data: encodedAbi,
+            to: this.docAuthContract.options.address,
+        };
+        let response = await this.nodeManager.callFunction(tx);
+        // Return types of smart contract function "getProof" are string, address, uint256
+        let returnedProof = web3.eth.abi.decodeParameters([ 'string', 'address', 'uint256' ], response);
+
+        logger.info("readProof( " + hash + " ) returned " + returnedProof);
         let dProof : DocProof = {
             datahash: hash,
-            sender: proof.sender,
-            timestamp: proof.timestamp,
-            uid: proof.id
+            uid: returnedProof[0],
+            sender: returnedProof[1],
+            timestamp: returnedProof[2]
         };
         return dProof;
     }
 
     public async addProof(buffer: Buffer, uid: string): Promise<ProofReceipt> {
         try {
-            await this.bc.ready;
             logger.info("addProof() called for id " + uid);
             let hash = DocAuthenticator.getHashOfFile(buffer);   
             logger.info("addProof(" + uid + " , " + hash + " )"); 
             let tx = this.docAuthContract.methods.addProof(uid, hash);
-            let gas = await tx.estimateGas();
-            logger.info("Estimated gas: " + gas);
             let txObject = {
-                gas: gas,
                 data: tx.encodeABI(),
-                from: this.bc.getAccountAddress(),
                 to: this.docAuthContract.options.address
             };
-            logger.info("addProof() function sending tx to signAndSendTx() - from: " + txObject.from + " gas: " + txObject.gas + " to: " + txObject.to);
+
+            let predictedTxHash = await this.nodeManager.sendTx(txObject);
             
-            let emitter : Emitter<TransactionStatus> = new Emitter<TransactionStatus>();            
             let receipt : ProofReceipt = {
                 docHash: hash,
-                predictedTxHash: await this.bc.signAndSendTx(txObject, emitter),
-                confirmedTxReceipt: emitter.on("txReceipt")
-                    .pipe( // Create Observable pipe
-                    take(1) // Complete Observable when first event is fired
-                    ).toPromise() // Convert Observable to Promise
+                predictedTxHash: predictedTxHash,
+                confirmedTxReceipt: this.nodeManager.waitForTx(predictedTxHash)
             }
             return receipt;
         } catch (e) {

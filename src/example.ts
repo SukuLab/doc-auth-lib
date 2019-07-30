@@ -1,23 +1,19 @@
 import DocAuthenicator from './doc-authenticator';
-import { logger } from './log';
 import deployDocAuth from './deploydocauthenticator';
 import fs from 'fs';
 import path from 'path';
 
-const nodeUrl = "HTTP://127.0.0.1:7545";
-const privateKey = "abdd6b39779c41b015d53fb83d658fe85e65a3b72a8a3e2fadb0030a5dcf1015";
+let logger = require('@suku/suku-logging')(require('../package.json'));
+
+const nodeManagerUrl = "http://localhost:3000";
 
 // 0) Helper to deploy doc auth
-deployDocAuth(
-    nodeUrl,
-    privateKey
-).then( async receipt => {
+deployDocAuth(nodeManagerUrl).then( async receipt => {
     logger.info("Contract deployed. Contract address: " + receipt.contractAddress);
     // 1) Initialize doc auth
     let docauth = new DocAuthenicator(
-        nodeUrl, // nodeUrl
-        receipt.contractAddress, // contractAddress
-        privateKey // private key that is used for signing
+        nodeManagerUrl, // nodeUrl
+        receipt.contractAddress // contractAddress
     );
 
     // 2) Add a new file
