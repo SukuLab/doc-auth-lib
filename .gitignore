@@ -16,3 +16,6 @@ dist/
 # Test Coverage
 .nyc_output/
 coverage/
+
+#vs_code
+.vscode/
