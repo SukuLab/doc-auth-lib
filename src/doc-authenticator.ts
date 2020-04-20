@@ -5,7 +5,7 @@ import Web3 from 'web3';
 const docAuthContractJson = require('../blockchain/build/contracts/Docauth');
 import NodeManager from '@suku/bc-node-manager-client-lib';
 import { Contract } from 'web3-eth-contract/types';
-import { Transaction } from 'web3-core/types';
+import { Transaction, TransactionReceipt } from 'web3-core/types';
 
 let logger = require('@suku/suku-logging')(require('../package.json'));
 
@@ -78,6 +78,10 @@ class DocAuthenticator {
             logger.error("Error during addProof() " + e);
             return Promise.reject(e);
         }
+    }
+
+    public async waitForTx(txHash: string): Promise<TransactionReceipt> {
+        return await this.nodeManager.waitForTx(txHash);
     }
 
     private static getHashOfFile(buffer : Buffer) : string {
