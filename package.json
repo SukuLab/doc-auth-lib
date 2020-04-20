@@ -1,53 +1,50 @@
 {
-  "name": "@suku/doc-auth-lib",
-  "version": "2.0.0",
-  "description": "",
-  "main": "./dist/doc-authenticator.js",
-  "scripts": {
-    "debug": "node --inspect -r ts-node/register ./src/example.ts",
-    "dev": "nodemon -e ts --exec \"npm run compile\"",
-    "test": "nyc mocha --exit --timeout 600000 -r ts-node/register ./test/**/*.ts",
-    "build": "tsc",
-    "prepare": "npm run build"
-  },
-  "nyc": {
-    "extension": [
-      ".ts",
-      ".tsx"
-    ],
-    "exclude": [
-      "**/*.d.ts",
-      "dist/",
-      "blockchain/",
-      "src/example.ts",
-      "test/",
-      "coverage"
-    ],
-    "all": true
-  },
-  "author": "Lucas Henning",
-  "license": "ISC",
-  "devDependencies": {
-    "@types/chai": "^4.1.7",
-    "@types/mocha": "^5.2.5",
-    "@types/node": "^10.12.19",
-    "chai": "^4.2.0",
-    "ganache-cli": "^6.2.5",
-    "mocha": "^5.2.0",
-    "nock": "^10.0.6",
-    "nyc": "^13.1.0",
-    "ts-node": "^8.0.2",
-    "typescript": "^3.2.4"
-  },
-  "dependencies": {
-    "@babel/runtime": "^7.3.1",
-    "@suku/bc-node-manager-client-lib": "^1.0.1",
-    "@suku/suku-logging": "^1.0.2",
-    "crypto": "^1.0.1",
-    "fs": "0.0.1-security",
-    "path": "^0.12.7",
-    "rxjs": "^6.5.2",
-    "web3": "1.0.0-beta.41",
-    "winston": "^2.3.8"
-  }
+	"name": "@suku/doc-auth-lib",
+	"version": "2.0.1",
+	"description": "",
+	"main": "./dist/doc-authenticator.js",
+	"scripts": {
+		"debug": "node --inspect -r ts-node/register ./src/example.ts",
+		"dev": "nodemon -e ts --exec \"npm run compile\"",
+		"test": "nyc mocha --exit --timeout 600000 -r ts-node/register ./test/**/*.ts",
+		"build": "tsc",
+		"prepare": "npm run build"
+	},
+	"nyc": {
+		"extension": [ ".ts", ".tsx" ],
+		"exclude": [
+			"**/*.d.ts",
+			"dist/",
+			"blockchain/",
+			"src/example.ts",
+			"test/",
+			"coverage"
+		],
+		"all": true
+	},
+	"author": "Lucas Henning",
+	"license": "ISC",
+	"devDependencies": {
+		"@types/chai": "^4.1.7",
+		"@types/mocha": "^5.2.5",
+		"@types/node": "^10.12.19",
+		"chai": "^4.2.0",
+		"ganache-cli": "^6.2.5",
+		"mocha": "^5.2.0",
+		"nock": "^10.0.6",
+		"nyc": "^13.1.0",
+		"ts-node": "^8.0.2",
+		"typescript": "^3.2.4"
+	},
+	"dependencies": {
+		"@babel/runtime": "^7.3.1",
+		"@suku/bc-node-manager-client-lib": "^1.0.1",
+		"@suku/suku-logging": "^1.0.2",
+		"crypto": "^1.0.1",
+		"fs": "0.0.1-security",
+		"path": "^0.12.7",
+		"rxjs": "^6.5.2",
+		"web3": "1.0.0-beta.41",
+		"winston": "^2.3.8"
+	}
 }
