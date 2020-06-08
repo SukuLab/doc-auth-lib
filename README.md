@@ -38,7 +38,7 @@ The document authenticator comes with a helper script that allows for flexible d
 3. As nodeURL use the URL of a running instance of [SUKU Ethereum Node API](https://github.com/SukuLab/suku-ethereum-node-api).
 4. As privateKey specify a private key that is able to send transactions on the Ethereum node that your API instance is connected to. Make sure that this private key has sufficient gas to send transactions. 
 
-```
+```js
 import deployDocAuth from '@suku/doc-auth-lib/dist/deploydocauthenticator';
 
 const nodeUrl = "HTTP://xyz"; // SUKU Ethereum Node API instance
@@ -55,18 +55,18 @@ deployDocAuth(nodeUrl,privateKey)
 The import depends on you ECMAScript version. 
 
 For ECMAScript <= ES5 (CommonJS `require()`)
-```
+```js
 const docAuthLibrary = require('@suku/doc-auth-lib');
 ```
 
 For ECMAScript >= ES6 (import)
-```
+```js
 import DocAuthenicator from '@suku/doc-auth-lib';
 ```
 
 ## Adding a Proof
 CommonJS Example:
-```
+```js
 const docAuthLibrary = require('@suku/doc-auth-lib');
 
 let docauth = new docAuthLibrary.default(
@@ -82,7 +82,7 @@ let txReceipt = proofReceipt.txReceipt;
 
 ## Reading a Proof
 CommonJS Example:
-```
+```js
 const docAuthLibrary = require('@suku/doc-auth-lib');
 
 let docauth = new docAuthLibrary.default(
