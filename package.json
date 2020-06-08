@@ -45,7 +45,6 @@
 	},
 	"dependencies": {
 		"@babel/runtime": "^7.3.1",
-		"@suku/bc-node-manager-client-lib": "^1.0.1",
 		"@suku/suku-ethereum-node-api-client-lib": "^1.0.0",
 		"@suku/suku-logging": "^1.0.2",
 		"crypto": "^1.0.1",
