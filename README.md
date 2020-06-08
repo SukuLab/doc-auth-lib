@@ -1,4 +1,8 @@
 # SUKU Blockchain Document Authenticator Library
+
+![Node.js CI](https://github.com/SukuLab/doc-auth-lib/workflows/Node.js%20CI/badge.svg)
+![Publish NPM Package](https://github.com/SukuLab/doc-auth-lib/workflows/Publish%20NPM%20Package/badge.svg)
+
 This is the SUKU Blockchain Document Authenticator Library. It can be used to write blockchain proofs (signed hashes) of files to the blockchain. It expects a deployed version of the [SUKU Ethereum Node API](https://github.com/SukuLab/suku-ethereum-node-api).
 
 ## Usage as a library
