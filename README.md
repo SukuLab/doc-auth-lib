@@ -1,5 +1,6 @@
 # SUKU Blockchain Document Authenticator Library
 
+[![npm version](https://badge.fury.io/js/%40suku%2Fdoc-auth-lib.svg)](https://badge.fury.io/js/%40suku%2Fdoc-auth-lib)
 ![Node.js CI](https://github.com/SukuLab/doc-auth-lib/workflows/Node.js%20CI/badge.svg)
 ![Publish NPM Package](https://github.com/SukuLab/doc-auth-lib/workflows/Publish%20NPM%20Package/badge.svg)
 
@@ -7,7 +8,7 @@ This is the SUKU Blockchain Document Authenticator Library. It can be used to wr
 
 ## Usage as a library
 
-> **Note:** Before you start, please make sure that you need a deployed version of [SUKU Ethereum Node API](https://github.com/SukuLab/suku-ethereum-node-api). 
+> **Note:** Before you start, please make sure that you have a deployed version of [SUKU Ethereum Node API](https://github.com/SukuLab/suku-ethereum-node-api). 
 
 The document authenticator ships as an npm package. It requires the document authenticator smart contract to be deployed to the blockchain. 
 
