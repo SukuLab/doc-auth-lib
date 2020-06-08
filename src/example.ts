@@ -10,6 +10,11 @@ const nodeManagerUrl = "http://localhost:3000";
 // 0) Helper to deploy doc auth
 deployDocAuth(nodeManagerUrl).then( async receipt => {
     logger.info("Contract deployed. Contract address: " + receipt.contractAddress);
+
+    if (receipt.contractAddress == undefined) {
+        throw new Error('no contract address found in receipt');
+    }
+
     // 1) Initialize doc auth
     let docauth = new DocAuthenicator(
         nodeManagerUrl, // nodeUrl

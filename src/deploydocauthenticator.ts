@@ -1,5 +1,5 @@
 const docAuthContractJson = require('../blockchain/build/contracts/Docauth');
-import NodeManager from '@suku/bc-node-manager-client-lib';
+import NodeManager from '@suku/suku-ethereum-node-api-client-lib';
 import Web3 from 'web3';
 import { TransactionReceipt } from 'web3-core/types';
 

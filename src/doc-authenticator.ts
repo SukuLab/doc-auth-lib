@@ -3,9 +3,9 @@ import DocProof from './docproof';
 import ProofReceipt from './proofreceipt'
 import Web3 from 'web3';
 const docAuthContractJson = require('../blockchain/build/contracts/Docauth');
-import NodeManager from '@suku/bc-node-manager-client-lib';
+import NodeManager from '@suku/suku-ethereum-node-api-client-lib';
 import { Contract } from 'web3-eth-contract/types';
-import { Transaction, TransactionReceipt } from 'web3-core/types';
+import { Transaction, TransactionReceipt, Account, AddAccount, TransactionConfig, SignedTransaction } from 'web3-core/types';
 
 let logger = require('@suku/suku-logging')(require('../package.json'));
 
@@ -37,7 +37,7 @@ class DocAuthenticator {
 
         // Encode call and send it to NodeManager
         let encodedAbi : string = await this.docAuthContract.methods.getProof(hash).encodeABI();
-        let tx : Transaction = {
+        let tx : TransactionConfig = {
             data: encodedAbi,
             to: this.docAuthContract.options.address,
         };

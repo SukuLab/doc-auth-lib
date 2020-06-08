@@ -7,9 +7,9 @@ import nock from 'nock';
 import deployDocAuth from '../src/deploydocauthenticator';
 
 let nodeManagerMockUrl = 'http://suku.world';
-let contractAddress = '0x823309726b1cd06c9b0b283ca89cd578102661ca1d1f99b0ed5198d1528901dc';
+let contractAddress = '0xb60739c904b6D202c7cB2ba4Be0fD4b733374C4e';
 
-describe('Database', () => {
+describe('DocAuthenticator', () => {
     let docAuth : DocAuthenticator;    
 
     before( async () => {
